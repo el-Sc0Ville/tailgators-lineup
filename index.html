@@ -3,110 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evolution Ice 3v3</title>
+    <title>Tuesday Night 3v3 🏒</title>
     <style>
         :root {
             --team-red: #C8102E;
             --team-blue: #0046A0;
-            --dark-bg: #111827;
-            --card-bg: #1f2937;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--dark-bg); color: var(--text-main); margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--dark-bg); color: var(--text-main); margin: 0; padding: 0; }
         
-        #status-bar { padding: 12px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
-        .status-locked { background: #059669; }
-        .status-draft { background: #b91c1c; }
+        /* Top Weather Banner */
+        #weather-banner { background: #1e3a8a; padding: 15px; text-align: center; border-bottom: 3px solid #3b82f6; }
+        .weather-info { font-size: 1.2rem; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .weather-detail { font-size: 0.8rem; color: #bfdbfe; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
 
-        .header { text-align: center; padding: 30px 20px 20px; background: linear-gradient(180deg, #1f2937 0%, #111827 100%); border-bottom: 2px solid #374151; }
-        .header h1 { margin: 0; font-size: 1.8rem; }
-        .header p { margin: 8px 0 0; color: var(--text-muted); font-size: 1rem; }
-        .date-badge { display: inline-block; background: #374151; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-top: 12px; color: #e5e7eb; font-weight: bold; }
+        .header { text-align: center; padding: 25px 20px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+        .header h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.5px; }
+        .date-badge { display: inline-block; background: #334155; padding: 4px 15px; border-radius: 20px; font-size: 0.9rem; margin-top: 10px; color: #f1f5f9; font-weight: 700; border: 1px solid #475569; }
 
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
 
-        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .team-card { border-radius: 12px; padding: 15px; background: var(--card-bg); box-shadow: 0 8px 20px rgba(0,0,0,0.4); border-top: 6px solid; }
+        /* Roster Cards */
+        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .team-card { border-radius: 12px; padding: 15px; background: var(--card-bg); box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-top: 6px solid; }
         .team-red { border-top-color: var(--team-red); }
         .team-blue { border-top-color: var(--team-blue); }
         
-        .team-title { text-align: center; font-weight: 800; font-size: 1.1rem; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid #374151; text-transform: uppercase; }
+        .team-title { text-align: center; font-weight: 900; font-size: 1rem; margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid #334155; }
         .team-red .team-title { color: #fca5a5; }
         .team-blue .team-title { color: #93c5fd; }
         
-        .player-row { padding: 8px 5px; font-weight: 600; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .goalie-row { color: #fcd34d; font-style: italic; font-size: 0.9rem; }
+        .player-row { padding: 10px 5px; font-weight: 600; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; }
+        .goalie-row { color: #fcd34d; border-bottom: none; font-size: 1rem; padding-top: 15px; }
 
-        .details-card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #fcd34d; }
-        .detail-item { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;}
-        .label { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: 800; }
-        .value { font-weight: 700; background: #374151; padding: 4px 10px; border-radius: 6px; }
+        /* Status Banner (Now below rosters) */
+        #status-bar { margin: 10px 0 20px; padding: 12px; border-radius: 8px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .status-locked { background: #059669; color: white; border: 1px solid #10b981; }
+        .status-draft { background: #991b1b; color: white; border: 1px solid #ef4444; }
 
-        .weather-widget { background: #1e3a8a; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #3b82f6; }
-        .weather-title { font-size: 0.8rem; color: #bfdbfe; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
-        .weather-temp { font-size: 1.4rem; font-weight: 800; color: #ffffff; }
+        /* Detail Boxes */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .detail-box { background: var(--card-bg); padding: 15px; border-radius: 10px; text-align: center; border-bottom: 3px solid #fcd34d; }
+        .label { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; font-weight: 800; margin-bottom: 5px; display: block; }
+        .value { font-weight: 700; font-size: 1rem; }
 
-        .loader { text-align: center; padding: 50px; color: var(--text-muted); font-weight: bold; }
+        .loader { text-align: center; padding: 100px 20px; color: var(--text-muted); font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-<div id="status-bar" class="status-draft">FETCHING ROSTERS... 🏒</div>
+<div id="weather-banner">
+    <div class="weather-info">
+        <span id="weather-icon">📡</span>
+        <span id="weather-temp">--</span>
+    </div>
+    <div class="weather-detail">Tailgate Forecast 🍻</div>
+</div>
 
 <div class="header">
-    <h1>Tuesday Night 3v3</h1>
-    <p>8:15 PM @ Evolution Ice, Dorval</p>
-    <div class="date-badge" id="game-date">Loading Date...</div>
+    <h1>Tuesday Night 3v3 🏒</h1>
+    <div class="date-badge" id="game-date">--</div>
 </div>
 
 <div class="container" id="app-content" style="display: none;">
     
     <div class="roster-grid">
         <div class="team-card team-red">
-            <h3 class="team-title">TEAM RED</h3>
+            <h3 class="team-title">TEAM RED 🚨</h3>
             <div id="red-roster"></div>
         </div>
         <div class="team-card team-blue">
-            <h3 class="team-title">TEAM BLUE</h3>
+            <h3 class="team-title">TEAM BLUE ⛸️</h3>
             <div id="blue-roster"></div>
         </div>
     </div>
 
-    <div class="details-card">
-        <div class="detail-item">
+    <div id="status-bar" class="status-draft">FETCHING...</div>
+
+    <div class="info-grid">
+        <div class="detail-box">
             <span class="label">Referee 🦓</span>
             <span class="value" id="ref-name">--</span>
         </div>
-        <div class="detail-item">
-            <span class="label">Beer Duty 🍻</span>
+        <div class="detail-box">
+            <span class="label">Beer Duty 🍺</span>
             <span class="value" id="beer-duty">--</span>
         </div>
     </div>
-
-    <div class="weather-widget">
-        <div class="weather-title">Post-Game Tailgate Forecast (9:45 PM)</div>
-        <div class="weather-temp" id="weather-temp">Checking radars... 📡</div>
-    </div>
-
 </div>
 
-<div class="loader" id="loader">Lacing up the skates...</div>
+<div class="loader" id="loader">Sharpening skates... ⛸️</div>
 
 <script>
-    // ⬇️ UPDATE THIS URL WITH YOUR GOOGLE WEB APP URL ⬇️
     const scriptURL = 'https://script.google.com/macros/s/AKfycbw0p03VCOsjERIkqShldPMYp07UJ7L_SvB5GyVtwprIOStY6GrIvjmmyh98C1rTvAew/exec';
+
+    function getWeatherEmoji(code) {
+        // Simple mapping of Open-Meteo codes to emojis
+        if (code === 0) return '🌕'; // Clear
+        if (code <= 3) return '☁️';  // Partly cloudy
+        if (code >= 51) return '🌧️'; // Rain/Drizzle
+        return '✨';
+    }
 
     async function getTailgateWeather(apiDate) {
         if (!apiDate) return;
         try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=45.4473&longitude=-73.7431&hourly=temperature_2m&timezone=America%2FNew_York&start_date=${apiDate}&end_date=${apiDate}`;
+            // Get data from 9pm to midnight
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=45.4473&longitude=-73.7431&hourly=temperature_2m,weathercode&timezone=America%2FNew_York&start_date=${apiDate}&end_date=${apiDate}`;
             const res = await fetch(url);
             const data = await res.json();
-            const temp = data.hourly.temperature_2m[22]; 
-            document.getElementById('weather-temp').innerText = `${temp}°C 🧊`;
+            
+            const temp9pm = Math.round(data.hourly.temperature_2m[21]);
+            const temp11pm = Math.round(data.hourly.temperature_2m[23]);
+            const condition = data.hourly.weathercode[22];
+
+            document.getElementById('weather-icon').innerText = getWeatherEmoji(condition);
+            document.getElementById('weather-temp').innerText = `${temp9pm}°C → ${temp11pm}°C`;
         } catch (e) {
-            document.getElementById('weather-temp').innerText = "Forecast unavailable";
+            document.getElementById('weather-temp').innerText = "Weather N/A";
         }
     }
 
@@ -115,56 +132,49 @@
             const response = await fetch(scriptURL);
             const data = await response.json();
 
-            // Status Banner logic
             const currentStatus = data.settings.status;
             const statusBar = document.getElementById('status-bar');
             
             if (currentStatus === 'LOCKED') {
-                statusBar.innerText = '🔒 ROSTERS ARE LOCKED';
+                statusBar.innerText = '🔒 Rosters Locked';
                 statusBar.className = 'status-locked';
             } else {
-                statusBar.innerText = '⏳ GENERATING TEAMS...';
+                statusBar.innerText = '⏳ Generating Teams...';
                 statusBar.className = 'status-draft';
             }
 
-            // Fill Header & Details
-            document.getElementById('game-date').innerText = data.settings.displayDate;
+            document.getElementById('game-date').innerText = `📍 Evolution Ice | ${data.settings.displayDate}`;
             document.getElementById('ref-name').innerText = data.settings.referee;
             document.getElementById('beer-duty').innerText = data.settings.beer;
 
-            // Trigger Weather
             getTailgateWeather(data.settings.apiDate);
 
-            // Populate Team Red
-            let redHtml = '';
-            data.teamRed.forEach((p, i) => {
-                let isG = (i === data.teamRed.length - 1) ? ' 🧱 (G)' : '';
-                let cls = (i === data.teamRed.length - 1) ? 'player-row goalie-row' : 'player-row';
-                redHtml += `<div class="${cls}">${p}${isG}</div>`;
-            });
-            document.getElementById('red-roster').innerHTML = redHtml;
+            // Populate Rosters
+            const renderRoster = (team, elementId) => {
+                let html = '';
+                team.forEach((p, i) => {
+                    const isGoalie = (i === team.length - 1);
+                    html += `
+                        <div class="player-row ${isGoalie ? 'goalie-row' : ''}">
+                            <span>${p}</span>
+                            <span>${isGoalie ? '🥅' : ''}</span>
+                        </div>`;
+                });
+                document.getElementById(elementId).innerHTML = html;
+            };
 
-            // Populate Team Blue
-            let blueHtml = '';
-            data.teamBlue.forEach((p, i) => {
-                let isG = (i === data.teamBlue.length - 1) ? ' 🧱 (G)' : '';
-                let cls = (i === data.teamBlue.length - 1) ? 'player-row goalie-row' : 'player-row';
-                blueHtml += `<div class="${cls}">${p}${isG}</div>`;
-            });
-            document.getElementById('blue-roster').innerHTML = blueHtml;
+            renderRoster(data.teamRed, 'red-roster');
+            renderRoster(data.teamBlue, 'blue-roster');
 
-            // Swap Loader for Content
             document.getElementById('loader').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
 
         } catch (error) {
-            console.error(error);
-            document.getElementById('loader').innerText = "Error loading rosters. Check your script URL.";
+            document.getElementById('loader').innerText = "Connection Error ❌";
         }
     }
 
     loadGameData();
 </script>
-
 </body>
 </html>
