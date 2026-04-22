@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolution Ice 3v3</title>
+    <style>
+        :root {
+            --team-red: #C8102E;
+            --team-blue: #0046A0;
+            --dark-bg: #111827;
+            --card-bg: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--dark-bg); color: var(--text-main); margin: 0; padding: 0; }
+        
+        /* Status Bar */
+        #status-bar { padding: 12px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; transition: background 0.3s; }
+        .status-locked { background: #059669; }
+        .status-draft { background: #b91c1c; }
+
+        /* Header */
+        .header { text-align: center; padding: 30px 20px 20px; background: linear-gradient(180deg, #1f2937 0%, #111827 100%); border-bottom: 2px solid #374151; }
+        .header h1 { margin: 0; font-size: 1.8rem; }
+        .header p { margin: 8px 0 0; color: var(--text-muted); font-size: 1rem; font-weight: 500; }
+        .date-badge { display: inline-block; background: #374151; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-top: 12px; color: #e5e7eb; font-weight: bold; }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+        /* Roster Cards */
+        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .team-card { border-radius: 12px; padding: 15px; background: var(--card-bg); box-shadow: 0 8px 20px rgba(0,0,0,0.4); border-top: 6px solid; }
+        .team-red { border-top-color: var(--team-red); }
+        .team-blue { border-top-color: var(--team-blue); }
+        
+        .team-title { text-align: center; font-weight: 800; font-size: 1.1rem; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid #374151; text-transform: uppercase; }
+        .team-red .team-title { color: #fca5a5; }
+        .team-blue .team-title { color: #93c5fd; }
+        
+        .player-row { padding: 8px 5px; font-weight: 600; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .goalie-row { color: #fcd34d; font-style: italic; font-size: 0.9rem; }
+
+        /* Game Details */
+        .details-card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #fcd34d; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .detail-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1rem; align-items: center;}
+        .detail-item:last-child { margin-bottom: 0; }
+        .label { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+        .value { font-weight: 700; background: #374151; padding: 4px 10px; border-radius: 6px; }
+
+        /* Weather Widget */
+        .weather-widget { background: #1e3a8a; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #3b82f6; position: relative; overflow: hidden; }
+        .weather-title { font-size: 0.8rem; color: #bfdbfe; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
+        .weather-temp { font-size: 1.4rem; font-weight: 800; color: #ffffff; }
+
+        /* Loading Spinner */
+        .loader { text-align: center; padding: 50px; color: var(--text-muted); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="status-bar" class="status-draft">FETCHING ROSTERS... 🏒</div>
+
+<div class="header">
+    <h1>Tuesday Night 3v3</h1>
+    <p>8:15 PM @ Evolution Ice, Dorval</p>
+    <div class="date-badge" id="game-date">Loading Date...</div>
+</div>
+
+<div class="container" id="app-content" style="display: none;">
+    
+    <div class="roster-grid">
+        <div class="team-card team-red">
+            <h3 class="team-title">TEAM RED</h3>
+            <div id="red-roster"></div>
+        </div>
+        <div class="team-card team-blue">
+            <h3 class="team-title">TEAM BLUE</h3>
+            <div id="blue-roster"></div>
+        </div>
+    </div>
+
+    <div class="details-card">
+        <div class="detail-item">
+            <span class="label">Referee 🦓</span>
+            <span class="value" id="ref-name">--</span>
+        </div>
+        <div class="detail-item">
+            <span class="label">Beer Duty 🍻</span>
+            <span class="value" id="beer-duty">--</span>
+        </div>
+    </div>
+
+    <div class="weather-widget">
+        <div class="weather-title">Post-Game Tailgate Forecast (9:45 PM)</div>
+        <div class="weather-temp" id="weather-temp">Checking radars... 📡</div>
+    </div>
+
+</div>
+
+<div class="loader" id="loader">Lacing up the skates...</div>
+
+<script>
+    // ⬇️ PASTE YOUR GOOGLE WEB APP URL HERE ⬇️
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw0p03VCOsjERIkqShldPMYp07UJ7L_SvB5GyVtwprIOStY6GrIvjmmyh98C1rTvAew/exec';
+
+    // Fetch Weather for specific Game Date from Sheet
+    async function getTailgateWeather(apiDate) {
+        if (!apiDate) {
+            document.getElementById('weather-temp').innerText = "Date not set";
+            return;
+        }
+        try {
+            // Fetch exact date for Dorval (lat/long)
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=45.4473&longitude=-73.7431&hourly=temperature_2m&timezone=America%2FNew_York&start_date=${apiDate}&end_date=${apiDate}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            // 22 is the index for 22:00 (10:00 PM) on that specific day
+            const temp = data.hourly.temperature_2m[22]; 
+            document.getElementById('weather-temp').innerText = `${temp}°C 🧊`;
+        } catch (e) {
+            document.getElementById('weather-temp').innerText = "Forecast unavailable";
+        }
+    }
+
+    async function loadGameData() {
+        try {
+            const response = await fetch(scriptURL);
+            const data = await response.json();
+
+            // Handle Status
+            const statusBar = document.getElementById('status-bar');
+            if (data.settings.status.toUpperCase() === 'LOCKED') {
+                statusBar.innerText = '🔒 ROSTERS ARE LOCKED';
+                statusBar.className = 'status-locked';
+            } else {
+                statusBar.innerText = '⏳ ROSTERS ARE PENDING (DRAFT)';
+                statusBar.className = 'status-draft';
+            }
+
+            // Fill Details
+            document.getElementById('game-date').innerText = data.settings.displayDate;
+            document.getElementById('ref-name').innerText = data.settings.referee;
+            document.getElementById('beer-duty').innerText = data.settings.beer;
+
+            // Trigger Weather API using the date from the Sheet
+            getTailgateWeather(data.settings.apiDate);
+
+            // Fill Team Red
+            let redHtml = '';
+            data.teamRed.forEach((player, index) => {
+                if(player) {
+                    let isGoalie = (index === data.teamRed.length - 1) ? ' 🧱 (G)' : '';
+                    let rowClass = (index === data.teamRed.length - 1) ? 'player-row goalie-row' : 'player-row';
+                    redHtml += `<div class="${rowClass}">${player}${isGoalie}</div>`;
+                }
+            });
+            document.getElementById('red-roster').innerHTML = redHtml;
+
+            // Fill Team Blue
+            let blueHtml = '';
+            data.teamBlue.forEach((player, index) => {
+                if(player) {
+                    let isGoalie = (index === data.teamBlue.length - 1) ? ' 🧱 (G)' : '';
+                    let rowClass = (index === data.teamBlue.length - 1) ? 'player-row goalie-row' : 'player-row';
+                    blueHtml += `<div class="${rowClass}">${player}${isGoalie}</div>`;
+                }
+            });
+            document.getElementById('blue-roster').innerHTML = blueHtml;
+
+            // Show UI
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            document.getElementById('loader').innerText = "Error loading rosters. Tell Dom to check the sheet.";
+        }
+    }
+
+    // Initialize
+    loadGameData();
+</script>
+
+</body>
+</html>
