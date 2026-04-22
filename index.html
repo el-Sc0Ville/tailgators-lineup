@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tuesday Night 3v3 🏒</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tailgators 3v3 🏒</title>
     <style>
         :root {
             --team-red: #C8102E;
@@ -13,44 +13,42 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
         }
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--dark-bg); color: var(--text-main); margin: 0; padding: 0; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--dark-bg); color: var(--text-main); margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* Top Weather Banner */
-        #weather-banner { background: #1e3a8a; padding: 15px; text-align: center; border-bottom: 3px solid #3b82f6; }
-        .weather-info { font-size: 1.2rem; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .weather-detail { font-size: 0.8rem; color: #bfdbfe; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
+        /* Compact Weather Banner */
+        #weather-banner { background: #1e3a8a; padding: 8px; text-align: center; border-bottom: 2px solid #3b82f6; }
+        .weather-info { font-size: 1.1rem; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .weather-detail { font-size: 0.7rem; color: #bfdbfe; text-transform: uppercase; letter-spacing: 1px; }
 
-        .header { text-align: center; padding: 25px 20px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
-        .header h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.5px; }
-        .date-badge { display: inline-block; background: #334155; padding: 4px 15px; border-radius: 20px; font-size: 0.9rem; margin-top: 10px; color: #f1f5f9; font-weight: 700; border: 1px solid #475569; }
+        .header { text-align: center; padding: 12px 10px; background: #0f172a; }
+        .header h1 { margin: 0; font-size: 1.4rem; font-weight: 900; color: #38bdf8; }
+        .date-badge { font-size: 0.85rem; margin-top: 4px; color: #f1f5f9; font-weight: 600; }
 
-        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        .container { max-width: 500px; margin: 0 auto; padding: 10px; }
 
-        /* Roster Cards */
-        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .team-card { border-radius: 12px; padding: 15px; background: var(--card-bg); box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-top: 6px solid; }
+        /* Condensed Roster Cards */
+        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .team-card { border-radius: 10px; padding: 10px; background: var(--card-bg); border-top: 5px solid; }
         .team-red { border-top-color: var(--team-red); }
         .team-blue { border-top-color: var(--team-blue); }
         
-        .team-title { text-align: center; font-weight: 900; font-size: 1rem; margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid #334155; }
-        .team-red .team-title { color: #fca5a5; }
-        .team-blue .team-title { color: #93c5fd; }
+        .team-title { text-align: center; font-weight: 800; font-size: 0.85rem; margin: 0 0 8px 0; padding-bottom: 5px; border-bottom: 1px solid #334155; }
         
-        .player-row { padding: 10px 5px; font-weight: 600; font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; }
-        .goalie-row { color: #fcd34d; border-bottom: none; font-size: 1rem; padding-top: 15px; }
+        .player-row { padding: 6px 4px; font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; }
+        .goalie-row { color: #fcd34d; border-bottom: none; padding-top: 8px; font-weight: 800; }
 
-        /* Status Banner (Now below rosters) */
-        #status-bar { margin: 10px 0 20px; padding: 12px; border-radius: 8px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
-        .status-locked { background: #059669; color: white; border: 1px solid #10b981; }
-        .status-draft { background: #991b1b; color: white; border: 1px solid #ef4444; }
+        /* Compact Status */
+        #status-bar { margin-bottom: 12px; padding: 8px; border-radius: 6px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; }
+        .status-locked { background: #059669; }
+        .status-draft { background: #991b1b; }
 
-        /* Detail Boxes */
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .detail-box { background: var(--card-bg); padding: 15px; border-radius: 10px; text-align: center; border-bottom: 3px solid #fcd34d; }
-        .label { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; font-weight: 800; margin-bottom: 5px; display: block; }
-        .value { font-weight: 700; font-size: 1rem; }
+        /* Ultra-Condensed Info Grid */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .detail-box { background: var(--card-bg); padding: 10px; border-radius: 8px; text-align: center; border-bottom: 2px solid #fcd34d; }
+        .label { color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; font-weight: 800; margin-bottom: 2px; display: block; }
+        .value { font-weight: 700; font-size: 0.9rem; }
 
-        .loader { text-align: center; padding: 100px 20px; color: var(--text-muted); font-size: 1.2rem; }
+        .loader { text-align: center; padding: 100px 20px; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -64,19 +62,18 @@
 </div>
 
 <div class="header">
-    <h1>Tuesday Night 3v3 🏒</h1>
-    <div class="date-badge" id="game-date">--</div>
+    <h1>Tailgators 3v3 🏒</h1>
+    <div class="date-badge" id="game-date">📅 --</div>
 </div>
 
 <div class="container" id="app-content" style="display: none;">
-    
     <div class="roster-grid">
         <div class="team-card team-red">
-            <h3 class="team-title">TEAM RED 🚨</h3>
+            <h3 class="team-title">RED 🚨</h3>
             <div id="red-roster"></div>
         </div>
         <div class="team-card team-blue">
-            <h3 class="team-title">TEAM BLUE ⛸️</h3>
+            <h3 class="team-title">BLUE ⛸️</h3>
             <div id="blue-roster"></div>
         </div>
     </div>
@@ -95,31 +92,27 @@
     </div>
 </div>
 
-<div class="loader" id="loader">Sharpening skates... ⛸️</div>
+<div class="loader" id="loader">Lacing up... ⛸️</div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbw0p03VCOsjERIkqShldPMYp07UJ7L_SvB5GyVtwprIOStY6GrIvjmmyh98C1rTvAew/exec';
+    const scriptURL = 'PASTE_YOUR_URL_HERE';
 
     function getWeatherEmoji(code) {
-        // Simple mapping of Open-Meteo codes to emojis
-        if (code === 0) return '🌕'; // Clear
-        if (code <= 3) return '☁️';  // Partly cloudy
-        if (code >= 51) return '🌧️'; // Rain/Drizzle
+        if (code === 0) return '🌕';
+        if (code <= 3) return '☁️';
+        if (code >= 51) return '🌧️';
         return '✨';
     }
 
     async function getTailgateWeather(apiDate) {
         if (!apiDate) return;
         try {
-            // Get data from 9pm to midnight
             const url = `https://api.open-meteo.com/v1/forecast?latitude=45.4473&longitude=-73.7431&hourly=temperature_2m,weathercode&timezone=America%2FNew_York&start_date=${apiDate}&end_date=${apiDate}`;
             const res = await fetch(url);
             const data = await res.json();
-            
             const temp9pm = Math.round(data.hourly.temperature_2m[21]);
             const temp11pm = Math.round(data.hourly.temperature_2m[23]);
             const condition = data.hourly.weathercode[22];
-
             document.getElementById('weather-icon').innerText = getWeatherEmoji(condition);
             document.getElementById('weather-temp').innerText = `${temp9pm}°C → ${temp11pm}°C`;
         } catch (e) {
@@ -131,11 +124,9 @@
         try {
             const response = await fetch(scriptURL);
             const data = await response.json();
-
-            const currentStatus = data.settings.status;
             const statusBar = document.getElementById('status-bar');
             
-            if (currentStatus === 'LOCKED') {
+            if (data.settings.status === 'LOCKED') {
                 statusBar.innerText = '🔒 Rosters Locked';
                 statusBar.className = 'status-locked';
             } else {
@@ -143,13 +134,12 @@
                 statusBar.className = 'status-draft';
             }
 
-            document.getElementById('game-date').innerText = `📍 Evolution Ice | ${data.settings.displayDate}`;
+            document.getElementById('game-date').innerText = `📅 ${data.settings.displayDate}`;
             document.getElementById('ref-name').innerText = data.settings.referee;
             document.getElementById('beer-duty').innerText = data.settings.beer;
 
             getTailgateWeather(data.settings.apiDate);
 
-            // Populate Rosters
             const renderRoster = (team, elementId) => {
                 let html = '';
                 team.forEach((p, i) => {
@@ -165,15 +155,12 @@
 
             renderRoster(data.teamRed, 'red-roster');
             renderRoster(data.teamBlue, 'blue-roster');
-
             document.getElementById('loader').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
-
         } catch (error) {
             document.getElementById('loader').innerText = "Connection Error ❌";
         }
     }
-
     loadGameData();
 </script>
 </body>
