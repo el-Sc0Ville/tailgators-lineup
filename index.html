@@ -61,6 +61,12 @@
         .value { font-weight: 700; font-size: 0.85rem; }
 
         .loader { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+
+        .next-up-divider { border-top: 1px solid #334155; margin: 5px 0 3px; }
+        .next-up-label { color: #94a3b8; font-size: 0.55rem; text-transform: uppercase;
+                         font-weight: 800; letter-spacing: 1px; display: block; }
+        .next-up-value { font-weight: 700; font-size: 0.8rem; color: #38bdf8; display: block; margin-top: 1px; }
+
     </style>
 </head>
 <body>
@@ -99,7 +105,13 @@
         <div class="detail-box">
             <span class="label">Referee 🦓</span>
             <span class="value" id="ref-name">--</span>
-        </div>
+            <div id="next-ref-container" style="display:none;">
+                <div class="next-up-divider"></div>
+                <span class="next-up-label">Next Up</span>
+                <span class="next-up-value" id="next-ref-name">--</span>
+    </div>
+</div>
+
         <div class="detail-box">
             <span class="label">Beer Duty 🍺</span>
             <span class="value" id="beer-duty">--</span>
@@ -166,6 +178,14 @@
 
             document.getElementById('game-date').innerText = `📅 ${data.settings.displayDate}`;
             document.getElementById('ref-name').innerText = data.settings.referee;
+
+            if (data.settings.nextRef && data.settings.nextRef !== '') {
+                document.getElementById('next-ref-name').innerText = data.settings.nextRef;
+                document.getElementById('next-ref-container').style.display = 'block';
+            } else {
+                document.getElementById('next-ref-container').style.display = 'none';
+            }
+
             document.getElementById('beer-duty').innerText = data.settings.beer;
 
             getTailgateWeather(data.settings.apiDate);
