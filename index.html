@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta property="og:title" content="Tailgators 3v3 Live Rosters">
+    <meta property="og:description" content="Check this week's teams, game status, beer duty, and the tailgate weather forecast.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1515523110800-9415d13b84a8?q=80&w=1200&auto=format&fit=crop">
+    <meta property="og:type" content="website">
+
     <title>Tailgators 3v3 🏒</title>
     <style>
         :root {
@@ -23,18 +29,25 @@
         .header h1 { margin: 0; font-size: 1.3rem; font-weight: 900; color: #38bdf8; text-transform: uppercase; }
         .loc-time { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
         .date-badge { font-size: 0.85rem; margin-top: 6px; color: #f1f5f9; font-weight: 700; display: inline-block; background: rgba(56, 189, 248, 0.1); padding: 2px 10px; border-radius: 4px; }
+        
+        /* Last Result Badge */
+        .last-result-badge { display: none; background: #334155; color: #fcd34d; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin: 8px auto 0; border: 1px solid #475569; width: max-content; }
 
         .container { max-width: 500px; margin: 0 auto; padding: 8px 12px; }
 
-        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; transition: opacity 0.3s ease; }
         .team-card { border-radius: 10px; padding: 10px; background: var(--card-bg); border-top: 5px solid; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .team-red { border-top-color: var(--team-red); }
         .team-blue { border-top-color: var(--team-blue); }
         
         .team-title { text-align: center; font-weight: 800; font-size: 0.8rem; margin: 0 0 6px 0; padding-bottom: 4px; border-bottom: 1px solid #334155; }
         
-        .player-row { padding: 5px 4px; font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; }
+        .player-row { padding: 5px 4px; font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; transition: opacity 0.3s; }
         .goalie-row { color: #fcd34d; border-bottom: none; padding-top: 6px; font-weight: 800; }
+
+        /* Faded Draft Mode Class */
+        .draft-mode .player-row { opacity: 0.4; }
+        .draft-mode .team-title { opacity: 0.7; }
 
         #status-bar { margin: 4px 0 10px; padding: 6px; border-radius: 6px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
         .status-locked { background: #059669; }
@@ -62,10 +75,12 @@
     <h1>Tailgators 3v3 🏒</h1>
     <div class="loc-time">8:15 PM @ Evolution Ice, Dorval</div>
     <div class="date-badge" id="game-date">📅 --</div>
+    <div class="last-result-badge" id="last-result"></div>
 </div>
 
 <div class="container" id="app-content" style="display: none;">
-    <div class="roster-grid">
+    
+    <div class="roster-grid" id="roster-grid">
         <div class="team-card team-red">
             <h3 class="team-title">RED 🔴</h3>
             <div id="red-roster"></div>
@@ -90,9 +105,10 @@
     </div>
 </div>
 
-<div class="loader" id="loader">Lacing up... ⛸️</div>
+<div class="loader" id="loader">Lacing up... 🚨</div>
 
 <script>
+    // ⬇️ UPDATE THIS URL WITH YOUR GOOGLE WEB APP URL ⬇️
     const scriptURL = 'https://script.google.com/macros/s/AKfycbw0p03VCOsjERIkqShldPMYp07UJ7L_SvB5GyVtwprIOStY6GrIvjmmyh98C1rTvAew/exec';
 
     function getWeatherEmoji(code) {
@@ -122,14 +138,28 @@
         try {
             const response = await fetch(scriptURL);
             const data = await response.json();
-            const statusBar = document.getElementById('status-bar');
             
+            const statusBar = document.getElementById('status-bar');
+            const rosterGrid = document.getElementById('roster-grid');
+            
+            // Handle Status & the "Draft Fade"
             if (data.settings.status === 'LOCKED') {
                 statusBar.innerText = '🔒 Rosters Locked';
                 statusBar.className = 'status-locked';
+                rosterGrid.classList.remove('draft-mode');
             } else {
                 statusBar.innerText = '⏳ Generating Teams...';
                 statusBar.className = 'status-draft';
+                rosterGrid.classList.add('draft-mode'); // Fades the names
+            }
+
+            // Handle Last Result Display
+            const resultBadge = document.getElementById('last-result');
+            if (data.settings.lastResult && data.settings.lastResult !== "") {
+                resultBadge.innerText = `🏆 Prev: ${data.settings.lastResult}`;
+                resultBadge.style.display = 'inline-block';
+            } else {
+                resultBadge.style.display = 'none';
             }
 
             document.getElementById('game-date').innerText = `📅 ${data.settings.displayDate}`;
