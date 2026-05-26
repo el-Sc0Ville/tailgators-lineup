@@ -1,217 +1,867 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <meta property="og:title" content="Tailgators 3v3 Live Rosters">
-    <meta property="og:description" content="Check this week's teams, game status, beer duty, and the tailgate weather forecast.">
-    <meta property="og:image" content="https://docs.google.com/presentation/d/1NMtaVe0CAwAQhGF8sC2sOI_tAyWZXUp1TOmw3ySx0m8/export/png?v=1779814105732">
-    <meta property="og:image:width" content="960">
-    <meta property="og:image:height" content="540">
-    <meta property="og:type" content="website">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Tailgators 3v3 🏒</title>
-    <style>
-        :root {
-            --team-red: #C8102E;
-            --team-blue: #0046A0;
-            --dark-bg: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--dark-bg); color: var(--text-main); margin: 0; padding: 0; overflow-x: hidden; }
-        
-        #weather-banner { background: #1e3a8a; padding: 8px; text-align: center; border-bottom: 2px solid #3b82f6; }
-        .weather-info { font-size: 1.1rem; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .weather-detail { font-size: 0.7rem; color: #bfdbfe; text-transform: uppercase; letter-spacing: 1px; }
+  <!-- ═══════════════════════════════════════════════════════
+       OG / Facebook Preview — updated automatically by
+       Apps Script whenever rosters are locked
+       ═══════════════════════════════════════════════════════ -->
+  <meta property="og:title" content="Tailgators 3v3 Live Rosters">
+  <meta property="og:description" content="Check this week's teams, game status, beer duty, and the tailgate weather forecast.">
+  <meta property="og:image" content="https://docs.google.com/presentation/d/1NMtaVe0CAwAQhGF8sC2sOI_tAyWZXUp1TOmw3ySx0m8/export/png?v=1779814105732">
+  <meta property="og:image:width" content="960">
+  <meta property="og:image:height" content="540">
+  <meta property="og:type" content="website">
 
-        .header { text-align: center; padding: 10px 5px; background: #0f172a; }
-        .header h1 { margin: 0; font-size: 1.3rem; font-weight: 900; color: #38bdf8; text-transform: uppercase; }
-        .loc-time { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
-        .date-badge { font-size: 0.85rem; margin-top: 6px; color: #f1f5f9; font-weight: 700; display: inline-block; background: rgba(56, 189, 248, 0.1); padding: 2px 10px; border-radius: 4px; }
-        
-        /* Last Result Badge */
-        .last-result-badge { display: none; background: #334155; color: #fcd34d; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin: 8px auto 0; border: 1px solid #475569; width: max-content; }
+  <title>Tailgators 3v3 🏒</title>
 
-        .container { max-width: 500px; margin: 0 auto; padding: 8px 12px; }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; transition: opacity 0.3s ease; }
-        .team-card { border-radius: 10px; padding: 10px; background: var(--card-bg); border-top: 5px solid; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .team-red { border-top-color: var(--team-red); }
-        .team-blue { border-top-color: var(--team-blue); }
-        
-        .team-title { text-align: center; font-weight: 800; font-size: 0.8rem; margin: 0 0 6px 0; padding-bottom: 4px; border-bottom: 1px solid #334155; }
-        
-        .player-row { padding: 5px 4px; font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; transition: opacity 0.3s; }
-        .goalie-row { color: #fcd34d; border-bottom: none; padding-top: 6px; font-weight: 800; }
+  <style>
+    /* ── Reset & Variables ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --red:        #C8102E;
+      --blue:       #0046A0;
+      --sky:        #38bdf8;
+      --gold:       #fcd34d;
+      --green:      #059669;
+      --bg:         #0f172a;
+      --surface:    #1e293b;
+      --surface2:   #273549;
+      --border:     #334155;
+      --muted:      #64748b;
+      --text:       #f8fafc;
+      --text-dim:   #94a3b8;
+      --nav-h:      64px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
 
-        /* Faded Draft Mode Class */
-        .draft-mode .player-row { opacity: 0.4; }
-        .draft-mode .team-title { opacity: 0.7; }
+    html, body {
+      height: 100%; margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      overflow: hidden;
+    }
 
-        #status-bar { margin: 4px 0 10px; padding: 6px; border-radius: 6px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
-        .status-locked { background: #059669; }
-        .status-draft { background: #991b1b; }
+    /* ── App Shell ── */
+    #app {
+      display: flex; flex-direction: column;
+      height: 100%; height: 100dvh;
+    }
 
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .detail-box { background: var(--card-bg); padding: 8px; border-radius: 8px; text-align: center; border-bottom: 2px solid #fcd34d; }
-        .label { color: var(--text-muted); font-size: 0.6rem; text-transform: uppercase; font-weight: 800; margin-bottom: 1px; display: block; }
-        .value { font-weight: 700; font-size: 0.85rem; }
+    .view {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 8px);
+      display: none;
+    }
+    .view.active { display: block; }
 
-        .loader { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+    /* ── Bottom Nav ── */
+    #bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: calc(var(--nav-h) + var(--safe-bottom));
+      padding-bottom: var(--safe-bottom);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: stretch;
+      z-index: 100;
+    }
+    .nav-btn {
+      flex: 1; border: none; background: none; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; padding: 0; color: var(--muted);
+      font-family: 'Inter', sans-serif; font-size: 0.6rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+    .nav-btn .nav-icon { font-size: 1.4rem; line-height: 1; }
+    .nav-btn.active { color: var(--sky); }
 
-        .next-up-divider { border-top: 1px solid #334155; margin: 5px 0 3px; }
-        .next-up-label { color: #94a3b8; font-size: 0.55rem; text-transform: uppercase;
-                         font-weight: 800; letter-spacing: 1px; display: block; }
-        .next-up-value { font-weight: 700; font-size: 0.8rem; color: #38bdf8; display: block; margin-top: 1px; }
+    /* ── Weather Banner ── */
+    #weather-banner {
+      background: #1e3a8a; padding: 7px 12px;
+      text-align: center; border-bottom: 2px solid #3b82f6;
+    }
+    .weather-row { font-size: 1rem; font-weight: 800;
+      display: flex; justify-content: center; align-items: center; gap: 7px; }
+    .weather-sub { font-size: 0.65rem; color: #bfdbfe;
+      text-transform: uppercase; letter-spacing: 1px; margin-top: 1px; }
 
-    </style>
+    /* ── Roster Header ── */
+    .page-header {
+      text-align: center; padding: 10px 12px 8px;
+      background: var(--bg);
+    }
+    .page-header h1 {
+      margin: 0; font-size: 1.25rem; font-weight: 900;
+      color: var(--sky); text-transform: uppercase; letter-spacing: 1px;
+    }
+    .game-meta { font-size: 0.72rem; color: var(--text-dim); font-weight: 600; margin-top: 2px; }
+    .badge-row { display: flex; justify-content: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 5px;
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .badge-date  { background: rgba(56,189,248,0.12); color: #e0f2fe; }
+    .badge-prev  { background: var(--surface); color: var(--gold); border: 1px solid var(--border); }
+
+    /* ── Roster Cards ── */
+    .container { max-width: 520px; margin: 0 auto; padding: 8px 12px; }
+    .roster-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 8px;
+    }
+    .team-card {
+      border-radius: 12px; padding: 10px 10px 6px;
+      background: var(--surface); border-top: 5px solid;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .team-red  { border-top-color: var(--red); }
+    .team-blue { border-top-color: var(--blue); }
+    .team-title {
+      text-align: center; font-weight: 800; font-size: 0.78rem;
+      margin: 0 0 7px; padding-bottom: 5px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .player-row {
+      padding: 5px 2px; font-weight: 600; font-size: 0.85rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .player-row:last-child { border-bottom: none; }
+    .goalie-row { color: var(--gold); font-weight: 800; padding-top: 7px; }
+
+    /* Draft fade */
+    .draft-mode .player-row { opacity: 0.35; }
+    .draft-mode .team-title  { opacity: 0.6; }
+
+    /* ── Status Bar ── */
+    #status-bar {
+      margin: 0 0 8px; padding: 7px 12px; border-radius: 8px;
+      text-align: center; font-weight: 800; text-transform: uppercase;
+      font-size: 0.7rem; letter-spacing: 0.8px;
+    }
+    .status-locked     { background: var(--green); }
+    .status-generating { background: #7c1d1d; border: 1px solid #991b1b; }
+
+    /* ── Info Grid ── */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .detail-box {
+      background: var(--surface); padding: 10px 8px 8px;
+      border-radius: 10px; text-align: center;
+      border-bottom: 3px solid var(--gold);
+    }
+    .detail-label {
+      color: var(--muted); font-size: 0.6rem; text-transform: uppercase;
+      font-weight: 800; letter-spacing: 0.8px; display: block; margin-bottom: 3px;
+    }
+    .detail-value { font-weight: 700; font-size: 0.85rem; line-height: 1.3; }
+    .next-divider { border-top: 1px solid var(--border); margin: 5px 0 3px; }
+    .next-label { color: var(--muted); font-size: 0.55rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+    .next-value { font-weight: 700; font-size: 0.8rem; color: var(--sky); display: block; margin-top: 1px; }
+
+    /* ── Loader ── */
+    #loader { text-align: center; padding: 80px 20px; color: var(--text-dim); font-size: 1rem; }
+
+    /* ═══════════════════════════════════════════════
+       ADMIN VIEW
+       ═══════════════════════════════════════════════ */
+    #view-admin { background: var(--bg); }
+
+    /* PIN Screen */
+    #pin-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 70vh; padding: 24px;
+      gap: 20px;
+    }
+    .pin-lock-icon { font-size: 3rem; }
+    .pin-title { font-size: 1rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+    .pin-dots { display: flex; gap: 12px; margin: 4px 0; }
+    .pin-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--border); transition: background 0.15s;
+    }
+    .pin-dot.filled { background: var(--sky); }
+    .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 260px; }
+    .pin-key {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      color: var(--text); font-size: 1.4rem; font-weight: 700;
+      padding: 16px 0; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: background 0.15s, transform 0.1s; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pin-key:active { background: var(--surface2); transform: scale(0.95); }
+    .pin-key.wide { grid-column: span 2; font-size: 1rem; }
+    .pin-key.del  { font-size: 1.2rem; }
+    .pin-error { color: #f87171; font-size: 0.8rem; font-weight: 700; height: 20px; }
+
+    /* Admin Panel */
+    #admin-panel { display: none; padding: 12px; max-width: 520px; margin: 0 auto; }
+    #admin-panel.visible { display: block; }
+
+    .admin-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .admin-title { font-size: 1rem; font-weight: 900; color: var(--sky); text-transform: uppercase; }
+    .logout-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      color: var(--muted); font-size: 0.65rem; font-weight: 700; padding: 4px 10px;
+      cursor: pointer; font-family: 'Inter', sans-serif; text-transform: uppercase;
+    }
+
+    /* Admin sections */
+    .admin-section {
+      background: var(--surface); border-radius: 12px; padding: 14px;
+      margin-bottom: 12px; border: 1px solid var(--border);
+    }
+    .admin-section-title {
+      font-size: 0.65rem; font-weight: 800; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+    }
+
+    /* Form fields */
+    .field-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .field-row:last-child { margin-bottom: 0; }
+    .field-row-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .field-label { font-size: 0.65rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+    .field-input, .field-select {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif;
+      font-size: 0.85rem; font-weight: 600; padding: 9px 12px;
+      width: 100%; outline: none; appearance: none; -webkit-appearance: none;
+      transition: border-color 0.2s;
+    }
+    .field-input:focus, .field-select:focus { border-color: var(--sky); }
+    .field-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+    /* Status toggle */
+    .status-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .status-opt {
+      padding: 10px 6px; border-radius: 8px; text-align: center;
+      font-size: 0.75rem; font-weight: 800; cursor: pointer;
+      border: 2px solid var(--border); color: var(--text-dim);
+      transition: all 0.2s; user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    .status-opt.selected-generating { background: #7c1d1d; border-color: #ef4444; color: #fca5a5; }
+    .status-opt.selected-locked     { background: #064e3b; border-color: var(--green); color: #6ee7b7; }
+
+    /* ── Team Builder ── */
+    .builder-intro { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5; }
+
+    .player-pool { margin-bottom: 12px; }
+    .pool-label { font-size: 0.65rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .player-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .pchip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 11px; border-radius: 20px; cursor: pointer;
+      font-size: 0.8rem; font-weight: 700; border: 2px solid;
+      transition: all 0.15s; user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    /* States */
+    .pchip[data-state="unassigned"] { background: var(--surface2); border-color: var(--border); color: var(--text-dim); }
+    .pchip[data-state="red"]        { background: rgba(200,16,46,0.2); border-color: var(--red); color: #fca5a5; }
+    .pchip[data-state="blue"]       { background: rgba(0,70,160,0.3); border-color: var(--blue); color: #93c5fd; }
+    .pchip[data-state="out"]        { background: transparent; border-color: var(--border); color: var(--muted); text-decoration: line-through; opacity: 0.6; }
+    .pchip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .pchip[data-state="unassigned"] .pchip-dot { background: var(--muted); }
+    .pchip[data-state="red"]        .pchip-dot { background: var(--red); }
+    .pchip[data-state="blue"]       .pchip-dot { background: #3b82f6; }
+    .pchip[data-state="out"]        .pchip-dot { background: var(--muted); }
+
+    /* Tap-cycle hint */
+    .cycle-hint {
+      font-size: 0.65rem; color: var(--muted); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    }
+    .hint-chip { display: inline-block; padding: 1px 6px; border-radius: 10px; font-weight: 700; font-size: 0.6rem; }
+    .hint-chip.unassigned { background: var(--surface2); color: var(--text-dim); }
+    .hint-chip.red  { background: rgba(200,16,46,0.2); color: #fca5a5; border: 1px solid var(--red); }
+    .hint-chip.blue { background: rgba(0,70,160,0.3); color: #93c5fd; border: 1px solid var(--blue); }
+    .hint-chip.out  { background: transparent; color: var(--muted); border: 1px dashed var(--muted); }
+
+    /* Team preview in admin */
+    .teams-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+    .preview-card {
+      background: var(--surface2); border-radius: 8px; padding: 8px;
+      border-top: 3px solid;
+    }
+    .preview-card.red-card  { border-top-color: var(--red); }
+    .preview-card.blue-card { border-top-color: var(--blue); }
+    .preview-card-title { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .preview-player { font-size: 0.8rem; font-weight: 600; padding: 2px 0; color: var(--text); }
+    .preview-player.is-goalie { color: var(--gold); }
+    .preview-player.is-goalie::after { content: ' 🥅'; }
+    .preview-empty { font-size: 0.75rem; color: var(--muted); font-style: italic; }
+    .preview-count { font-size: 0.6rem; color: var(--muted); margin-top: 4px; }
+
+    /* Save button */
+    #save-btn {
+      width: 100%; padding: 16px; border-radius: 12px; border: none;
+      background: var(--green); color: white;
+      font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 800;
+      cursor: pointer; letter-spacing: 0.5px; margin-bottom: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #save-btn:active { transform: scale(0.98); opacity: 0.9; }
+    #save-btn:disabled { background: var(--muted); cursor: not-allowed; }
+    #save-status { text-align: center; font-size: 0.8rem; font-weight: 700; min-height: 20px; }
+    .save-ok  { color: #6ee7b7; }
+    .save-err { color: #f87171; }
+    .save-loading { color: var(--text-dim); }
+  </style>
 </head>
 <body>
+<div id="app">
 
-<div id="weather-banner">
-    <div class="weather-info">
-        <span id="weather-icon">📡</span>
-        <span id="weather-temp">--</span>
+  <!-- ═══════════════════════════════════════════
+       ROSTER VIEW
+       ═══════════════════════════════════════════ -->
+  <div id="view-roster" class="view active">
+
+    <div id="weather-banner">
+      <div class="weather-row">
+        <span id="wx-icon">📡</span>
+        <span id="wx-temp">--</span>
+      </div>
+      <div class="weather-sub">Tailgate Forecast 🍻</div>
     </div>
-    <div class="weather-detail">Tailgate Forecast 🍻</div>
-</div>
 
-<div class="header">
-    <h1>Tailgators 3v3 🏒</h1>
-    <div class="loc-time">8:15 PM @ Evolution Ice, Dorval</div>
-    <div class="date-badge" id="game-date">📅 --</div>
-    <div class="last-result-badge" id="last-result"></div>
-</div>
+    <div class="page-header">
+      <h1>Tailgators 3v3 🏒</h1>
+      <div class="game-meta">8:15 PM @ Evolution Ice, Dorval</div>
+      <div class="badge-row">
+        <span class="badge badge-date" id="game-date">📅 --</span>
+        <span class="badge badge-prev" id="last-result" style="display:none"></span>
+      </div>
+    </div>
 
-<div class="container" id="app-content" style="display: none;">
-    
-    <div class="roster-grid" id="roster-grid">
+    <div class="container" id="app-content" style="display:none">
+
+      <div class="roster-grid" id="roster-grid">
         <div class="team-card team-red">
-            <h3 class="team-title">RED 🔴</h3>
-            <div id="red-roster"></div>
+          <h3 class="team-title"><span style="color:var(--red)">●</span> RED</h3>
+          <div id="red-roster"></div>
         </div>
         <div class="team-card team-blue">
-            <h3 class="team-title">BLUE 🔵</h3>
-            <div id="blue-roster"></div>
+          <h3 class="team-title"><span style="color:#3b82f6">●</span> BLUE</h3>
+          <div id="blue-roster"></div>
         </div>
-    </div>
+      </div>
 
-    <div id="status-bar" class="status-draft">FETCHING...</div>
+      <div id="status-bar" class="status-generating">FETCHING...</div>
 
-    <div class="info-grid">
+      <div class="info-grid">
         <div class="detail-box">
-            <span class="label">Referee 🦓</span>
-            <span class="value" id="ref-name">--</span>
-            <div id="next-ref-container" style="display:none;">
-                <div class="next-up-divider"></div>
-                <span class="next-up-label">Next Up</span>
-                <span class="next-up-value" id="next-ref-name">--</span>
-    </div>
-</div>
-
-        <div class="detail-box">
-            <span class="label">Beer Duty 🍺</span>
-            <span class="value" id="beer-duty">--</span>
+          <span class="detail-label">Referee 🦓</span>
+          <span class="detail-value" id="ref-name">--</span>
+          <div id="next-ref-wrap" style="display:none">
+            <div class="next-divider"></div>
+            <span class="next-label">Next Up</span>
+            <span class="next-value" id="next-ref-name">--</span>
+          </div>
         </div>
-    </div>
-</div>
+        <div class="detail-box">
+          <span class="detail-label">Beer Duty 🍺</span>
+          <span class="detail-value" id="beer-duty">--</span>
+        </div>
+      </div>
 
-<div class="loader" id="loader">Lacing up... 🚨</div>
+    </div>
+    <div id="loader">Lacing up... 🚨</div>
+
+  </div><!-- /view-roster -->
+
+
+  <!-- ═══════════════════════════════════════════
+       ADMIN VIEW
+       ═══════════════════════════════════════════ -->
+  <div id="view-admin" class="view">
+
+    <!-- PIN entry screen -->
+    <div id="pin-screen">
+      <div class="pin-lock-icon">🔐</div>
+      <div class="pin-title">Admin Access</div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot" id="d0"></div>
+        <div class="pin-dot" id="d1"></div>
+        <div class="pin-dot" id="d2"></div>
+        <div class="pin-dot" id="d3"></div>
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key wide" onclick="pinKey('0')">0</button>
+        <button class="pin-key del" onclick="pinDel()">⌫</button>
+      </div>
+    </div>
+
+    <!-- Admin panel (revealed after PIN) -->
+    <div id="admin-panel">
+      <div class="admin-header">
+        <div class="admin-title">⚙️ Admin</div>
+        <button class="logout-btn" onclick="adminLogout()">Lock</button>
+      </div>
+
+      <!-- Section 1: Game Info -->
+      <div class="admin-section">
+        <div class="admin-section-title">🗓 Game Info</div>
+        <div class="field-row">
+          <label class="field-label">Game Date</label>
+          <input type="date" id="a-date" class="field-input">
+        </div>
+        <div class="field-row">
+          <label class="field-label">Roster Status</label>
+          <div class="status-toggle">
+            <div class="status-opt" id="opt-generating" onclick="setStatus('GENERATING TEAMS')">⏳ Generating</div>
+            <div class="status-opt" id="opt-locked"     onclick="setStatus('LOCKED')">🔒 Locked</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <label class="field-label">Last Result</label>
+          <input type="text" id="a-result" class="field-input" placeholder="e.g. 12-10 BLUE">
+        </div>
+      </div>
+
+      <!-- Section 2: Duties -->
+      <div class="admin-section">
+        <div class="admin-section-title">🦓 Duties</div>
+        <div class="field-row-inline">
+          <div class="field-row" style="margin-bottom:0">
+            <label class="field-label">Referee</label>
+            <select id="a-ref" class="field-select"></select>
+          </div>
+          <div class="field-row" style="margin-bottom:0">
+            <label class="field-label">Next Referee</label>
+            <select id="a-nextref" class="field-select"></select>
+          </div>
+        </div>
+        <div class="field-row" style="margin-top:10px">
+          <label class="field-label">Beer Duty 🍺</label>
+          <select id="a-beer" class="field-select"></select>
+        </div>
+      </div>
+
+      <!-- Section 3: Team Builder -->
+      <div class="admin-section">
+        <div class="admin-section-title">🏒 Team Builder</div>
+        <div class="cycle-hint">
+          Tap to assign:
+          <span class="hint-chip unassigned">?</span> →
+          <span class="hint-chip red">RED</span> →
+          <span class="hint-chip blue">BLUE</span> →
+          <span class="hint-chip out">OUT</span>
+        </div>
+
+        <div class="player-pool">
+          <div class="pool-label">Skaters</div>
+          <div class="player-chips" id="skater-chips"></div>
+        </div>
+        <div class="player-pool" style="margin-bottom:0">
+          <div class="pool-label">Goalies</div>
+          <div class="player-chips" id="goalie-chips"></div>
+        </div>
+
+        <div class="teams-preview">
+          <div class="preview-card red-card">
+            <div class="preview-card-title">🔴 Red Team</div>
+            <div id="preview-red"><span class="preview-empty">No players</span></div>
+          </div>
+          <div class="preview-card blue-card">
+            <div class="preview-card-title">🔵 Blue Team</div>
+            <div id="preview-blue"><span class="preview-empty">No players</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save -->
+      <button id="save-btn" onclick="saveAdmin()">💾 Save &amp; Publish</button>
+      <div id="save-status"></div>
+    </div><!-- /admin-panel -->
+
+  </div><!-- /view-admin -->
+
+
+  <!-- ═══════════════════════════════════════════
+       BOTTOM NAV
+       ═══════════════════════════════════════════ -->
+  <nav id="bottom-nav">
+    <button class="nav-btn active" id="nav-roster" onclick="showView('roster')">
+      <span class="nav-icon">🏒</span>
+      <span>Roster</span>
+    </button>
+    <button class="nav-btn" id="nav-admin" onclick="showView('admin')">
+      <span class="nav-icon">🔐</span>
+      <span>Admin</span>
+    </button>
+  </nav>
+
+</div><!-- /app -->
 
 <script>
-    // ⬇️ UPDATE THIS URL WITH YOUR GOOGLE WEB APP URL ⬇️
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbw0p03VCOsjERIkqShldPMYp07UJ7L_SvB5GyVtwprIOStY6GrIvjmmyh98C1rTvAew/exec';
+// ─────────────────────────────────────────────────────────
+// CONFIG — update this with your Google Apps Script URL
+// ─────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0p03VCOsjERIkqShldPMYp07UJ7L_SvB5GyVtwprIOStY6GrIvjmmyh98C1rTvAew/exec';
+const ADMIN_PIN  = '1234'; // ← Change this to your preferred 4-digit PIN
 
-    function getWeatherEmoji(code) {
-        if (code === 0) return '🌕';
-        if (code <= 3) return '☁️';
-        if (code >= 51) return '🌧️';
-        return '✨';
+// ─────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────
+let appData       = null;
+let pinEntry      = '';
+let adminUnlocked = false;
+let adminStatus   = 'GENERATING TEAMS';
+// playerStates: { name: 'unassigned' | 'red' | 'blue' | 'out' }
+let playerStates  = {};
+
+// ─────────────────────────────────────────────────────────
+// View Navigation
+// ─────────────────────────────────────────────────────────
+function showView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.getElementById('nav-' + view).classList.add('active');
+}
+
+// ─────────────────────────────────────────────────────────
+// Weather
+// ─────────────────────────────────────────────────────────
+function wxEmoji(code) {
+  if (code === 0) return '🌕';
+  if (code <= 3)  return '☁️';
+  if (code >= 51) return '🌧️';
+  return '✨';
+}
+
+async function loadWeather(apiDate) {
+  if (!apiDate) return;
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=45.4473&longitude=-73.7431&hourly=temperature_2m,weathercode&timezone=America%2FNew_York&start_date=${apiDate}&end_date=${apiDate}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    const t9   = Math.round(data.hourly.temperature_2m[21]);
+    const t11  = Math.round(data.hourly.temperature_2m[23]);
+    const code = data.hourly.weathercode[22];
+    document.getElementById('wx-icon').textContent = wxEmoji(code);
+    document.getElementById('wx-temp').textContent = `${t9}°C → ${t11}°C`;
+  } catch (e) {
+    document.getElementById('wx-temp').textContent = 'N/A';
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// Roster Display
+// ─────────────────────────────────────────────────────────
+function renderRoster(players, elId) {
+  document.getElementById(elId).innerHTML = players.map((name, i) => {
+    const isGoalie = (i === players.length - 1);
+    return `<div class="player-row ${isGoalie ? 'goalie-row' : ''}">
+      <span>${name}</span>
+      <span>${isGoalie ? '🥅' : ''}</span>
+    </div>`;
+  }).join('');
+}
+
+async function loadGameData() {
+  try {
+    const res  = await fetch(SCRIPT_URL);
+    appData    = await res.json();
+    const s    = appData.settings;
+    const grid = document.getElementById('roster-grid');
+
+    // Status
+    const bar = document.getElementById('status-bar');
+    if (s.status === 'LOCKED') {
+      bar.textContent = '🔒 Rosters Locked';
+      bar.className   = 'status-locked';
+      grid.classList.remove('draft-mode');
+    } else {
+      bar.textContent = '⏳ Generating Teams...';
+      bar.className   = 'status-generating';
+      grid.classList.add('draft-mode');
     }
 
-    async function getTailgateWeather(apiDate) {
-        if (!apiDate) return;
-        try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=45.4473&longitude=-73.7431&hourly=temperature_2m,weathercode&timezone=America%2FNew_York&start_date=${apiDate}&end_date=${apiDate}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            const temp9pm = Math.round(data.hourly.temperature_2m[21]);
-            const temp11pm = Math.round(data.hourly.temperature_2m[23]);
-            const condition = data.hourly.weathercode[22];
-            document.getElementById('weather-icon').innerText = getWeatherEmoji(condition);
-            document.getElementById('weather-temp').innerText = `${temp9pm}°C → ${temp11pm}°C`;
-        } catch (e) {
-            document.getElementById('weather-temp').innerText = "Weather N/A";
-        }
+    // Date & result badges
+    document.getElementById('game-date').textContent = `📅 ${s.displayDate}`;
+    const resultEl = document.getElementById('last-result');
+    if (s.lastResult) {
+      resultEl.textContent = `⏮️ Last: ${s.lastResult}`;
+      resultEl.style.display = 'inline-flex';
     }
 
-    async function loadGameData() {
-        try {
-            const response = await fetch(scriptURL);
-            const data = await response.json();
-            
-            const statusBar = document.getElementById('status-bar');
-            const rosterGrid = document.getElementById('roster-grid');
-            
-            // Handle Status & the "Draft Fade"
-            if (data.settings.status === 'LOCKED') {
-                statusBar.innerText = '🔒 Rosters Locked';
-                statusBar.className = 'status-locked';
-                rosterGrid.classList.remove('draft-mode');
-            } else {
-                statusBar.innerText = '⏳ Generating Teams...';
-                statusBar.className = 'status-draft';
-                rosterGrid.classList.add('draft-mode'); // Fades the names
-            }
-
-            // Handle Last Result Display
-            const resultBadge = document.getElementById('last-result');
-            if (data.settings.lastResult && data.settings.lastResult !== "") {
-                resultBadge.innerText = `⏮️Last Week: ${data.settings.lastResult}`;
-                resultBadge.style.display = 'inline-block';
-            } else {
-                resultBadge.style.display = 'none';
-            }
-
-            document.getElementById('game-date').innerText = `📅 ${data.settings.displayDate}`;
-            document.getElementById('ref-name').innerText = data.settings.referee;
-
-            if (data.settings.nextRef && data.settings.nextRef !== '') {
-                document.getElementById('next-ref-name').innerText = data.settings.nextRef;
-                document.getElementById('next-ref-container').style.display = 'block';
-            } else {
-                document.getElementById('next-ref-container').style.display = 'none';
-            }
-
-            document.getElementById('beer-duty').innerText = data.settings.beer;
-
-            getTailgateWeather(data.settings.apiDate);
-
-            const renderRoster = (team, elementId) => {
-                let html = '';
-                team.forEach((p, i) => {
-                    const isGoalie = (i === team.length - 1);
-                    html += `
-                        <div class="player-row ${isGoalie ? 'goalie-row' : ''}">
-                            <span>${p}</span>
-                            <span>${isGoalie ? '🥅' : ''}</span>
-                        </div>`;
-                });
-                document.getElementById(elementId).innerHTML = html;
-            };
-
-            renderRoster(data.teamRed, 'red-roster');
-            renderRoster(data.teamBlue, 'blue-roster');
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-        } catch (error) {
-            document.getElementById('loader').innerText = "Connection Error ❌";
-        }
+    // Ref
+    document.getElementById('ref-name').textContent = s.referee;
+    if (s.nextRef) {
+      document.getElementById('next-ref-name').textContent = s.nextRef;
+      document.getElementById('next-ref-wrap').style.display = 'block';
     }
-    loadGameData();
+
+    // Beer
+    document.getElementById('beer-duty').textContent = s.beer;
+
+    // Rosters
+    renderRoster(appData.teamRed,  'red-roster');
+    renderRoster(appData.teamBlue, 'blue-roster');
+
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+
+    loadWeather(s.apiDate);
+
+    // Pre-populate admin if data is fresh
+    if (appData.rosters) populateAdminDropdowns(appData);
+    populateAdminFromCurrentData(appData);
+
+  } catch (err) {
+    document.getElementById('loader').textContent = 'Connection Error ❌';
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// PIN Logic
+// ─────────────────────────────────────────────────────────
+function pinKey(digit) {
+  if (pinEntry.length >= 4) return;
+  pinEntry += digit;
+  updatePinDots();
+  if (pinEntry.length === 4) setTimeout(checkPin, 120);
+}
+
+function pinDel() {
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function checkPin() {
+  if (pinEntry === ADMIN_PIN) {
+    adminUnlocked = true;
+    document.getElementById('pin-screen').style.display  = 'none';
+    document.getElementById('admin-panel').classList.add('visible');
+    if (appData) populateAdminFromCurrentData(appData);
+  } else {
+    document.getElementById('pin-error').textContent = 'Wrong PIN — try again';
+    pinEntry = '';
+    updatePinDots();
+  }
+}
+
+function adminLogout() {
+  adminUnlocked = false;
+  pinEntry = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-screen').style.display    = 'flex';
+  document.getElementById('admin-panel').classList.remove('visible');
+}
+
+// ─────────────────────────────────────────────────────────
+// Admin: Populate dropdowns from Rosters sheet data
+// ─────────────────────────────────────────────────────────
+function populateAdminDropdowns(data) {
+  const r = data.rosters;
+  if (!r) return;
+
+  // Referee dropdown
+  populateSelect('a-ref',     r.referee);
+  populateSelect('a-nextref', ['(none)', ...r.referee]);
+  populateSelect('a-beer',    r.beerDuty);
+}
+
+function populateSelect(id, options) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('');
+  if (current && options.includes(current)) sel.value = current;
+}
+
+// ─────────────────────────────────────────────────────────
+// Admin: Pre-fill fields from current live data
+// ─────────────────────────────────────────────────────────
+function populateAdminFromCurrentData(data) {
+  const s = data.settings;
+
+  if (s.isoDate) document.getElementById('a-date').value   = s.isoDate;
+  document.getElementById('a-result').value = s.lastResult || '';
+  setStatus(s.status || 'GENERATING TEAMS');
+
+  // Set dropdown values
+  setSelectValue('a-ref',     s.referee);
+  setSelectValue('a-nextref', s.nextRef || '(none)');
+  setSelectValue('a-beer',    s.beer);
+
+  // Build player state from current teams + out list
+  playerStates = {};
+  const all = getAllPlayersFromRosters(data);
+
+  all.skaters.forEach(name => { playerStates[name] = 'unassigned'; });
+  all.goalies.forEach(name => { playerStates[name] = 'unassigned'; });
+
+  (data.outPlayers  || []).forEach(n => { if (playerStates[n] !== undefined) playerStates[n] = 'out'; });
+  (data.teamRed     || []).forEach(n => { if (playerStates[n] !== undefined) playerStates[n] = 'red'; });
+  (data.teamBlue    || []).forEach(n => { if (playerStates[n] !== undefined) playerStates[n] = 'blue'; });
+
+  renderPlayerChips(all);
+  renderTeamPreviews();
+}
+
+function getAllPlayersFromRosters(data) {
+  const r = data.rosters || {};
+  const skaters = r.crew    || [];
+  const goalies = r.goalies || [];
+  return { skaters, goalies };
+}
+
+function setSelectValue(id, value) {
+  const sel = document.getElementById(id);
+  if (!sel || !value) return;
+  for (let opt of sel.options) {
+    if (opt.value === value) { sel.value = value; return; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// Admin: Status Toggle
+// ─────────────────────────────────────────────────────────
+function setStatus(val) {
+  adminStatus = val.toUpperCase();
+  const g = document.getElementById('opt-generating');
+  const l = document.getElementById('opt-locked');
+  g.className = 'status-opt' + (adminStatus === 'GENERATING TEAMS' ? ' selected-generating' : '');
+  l.className = 'status-opt' + (adminStatus === 'LOCKED'           ? ' selected-locked'     : '');
+}
+
+// ─────────────────────────────────────────────────────────
+// Admin: Player Chips
+// ─────────────────────────────────────────────────────────
+const CYCLE = ['unassigned', 'red', 'blue', 'out'];
+
+function cyclePlayer(name) {
+  const cur = playerStates[name] || 'unassigned';
+  playerStates[name] = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
+  // Update just this chip
+  const chip = document.querySelector(`.pchip[data-name="${CSS.escape(name)}"]`);
+  if (chip) {
+    const state = playerStates[name];
+    chip.dataset.state = state;
+  }
+  renderTeamPreviews();
+}
+
+function renderPlayerChips(allPlayers) {
+  renderChips('skater-chips', allPlayers.skaters);
+  renderChips('goalie-chips', allPlayers.goalies);
+}
+
+function renderChips(containerId, names) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = names.map(name => {
+    const state = playerStates[name] || 'unassigned';
+    return `<div class="pchip" data-name="${name}" data-state="${state}" onclick="cyclePlayer('${name.replace(/'/g,"\\'")}')">
+      <div class="pchip-dot"></div>${name}
+    </div>`;
+  }).join('');
+}
+
+function renderTeamPreviews() {
+  const red  = Object.entries(playerStates).filter(([,v]) => v === 'red').map(([k]) => k);
+  const blue = Object.entries(playerStates).filter(([,v]) => v === 'blue').map(([k]) => k);
+  renderPreviewTeam('preview-red',  red);
+  renderPreviewTeam('preview-blue', blue);
+}
+
+function renderPreviewTeam(elId, players) {
+  const el = document.getElementById(elId);
+  if (!players.length) { el.innerHTML = '<span class="preview-empty">No players</span>'; return; }
+  el.innerHTML = players.map((name, i) => {
+    const isGoalie = (i === players.length - 1);
+    return `<div class="preview-player ${isGoalie ? 'is-goalie' : ''}">${name}</div>`;
+  }).join('') + `<div class="preview-count">${players.length} players</div>`;
+}
+
+// ─────────────────────────────────────────────────────────
+// Admin: Save
+// ─────────────────────────────────────────────────────────
+async function saveAdmin() {
+  const btn    = document.getElementById('save-btn');
+  const status = document.getElementById('save-status');
+
+  const red  = Object.entries(playerStates).filter(([,v]) => v === 'red').map(([k]) => k);
+  const blue = Object.entries(playerStates).filter(([,v]) => v === 'blue').map(([k]) => k);
+  const out  = Object.entries(playerStates).filter(([,v]) => v === 'out').map(([k]) => k);
+
+  const payload = {
+    status:     adminStatus,
+    referee:    document.getElementById('a-ref').value,
+    nextRef:    document.getElementById('a-nextref').value === '(none)' ? '' : document.getElementById('a-nextref').value,
+    beer:       document.getElementById('a-beer').value,
+    date:       document.getElementById('a-date').value,
+    lastResult: document.getElementById('a-result').value.trim(),
+    teamRed:    red,
+    teamBlue:   blue,
+    outPlayers: out
+  };
+
+  btn.disabled   = true;
+  btn.textContent = '⏳ Saving...';
+  status.innerHTML = '<span class="save-loading">Sending to sheet…</span>';
+
+  try {
+    const url = `${SCRIPT_URL}?action=save&data=${encodeURIComponent(JSON.stringify(payload))}`;
+    const res  = await fetch(url);
+    const json = await res.json();
+
+    if (json.success) {
+      status.innerHTML = `<span class="save-ok">✅ Saved!${adminStatus === 'LOCKED' ? ' Roster card updating…' : ''}</span>`;
+      btn.textContent  = '💾 Save & Publish';
+      btn.disabled     = false;
+      // Refresh roster view in background
+      loadGameData();
+    } else {
+      throw new Error(json.error || 'Unknown error');
+    }
+  } catch (err) {
+    status.innerHTML = `<span class="save-err">❌ ${err.message}</span>`;
+    btn.textContent  = '💾 Save & Publish';
+    btn.disabled     = false;
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// Boot
+// ─────────────────────────────────────────────────────────
+loadGameData();
 </script>
 </body>
 </html>
